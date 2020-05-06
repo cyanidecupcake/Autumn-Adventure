@@ -12,6 +12,10 @@ License: http://creativecommons.org/licenses/by/4.0/'''
 Link: https://freesound.org/people/richcraftstudios/sounds/454610
 Attribution 3.0 Unported (CC BY 3.0) '''
 
+'''Oof by maxmakessounds
+Link: https://freesound.org/people/maxmakessounds/sounds/353541/
+Attribution 3.0 Unported (CC BY 3.0) '''
+
 import arcade
 
 SCREEN_WIDTH = 1000
@@ -58,11 +62,15 @@ class MyGame(arcade.Window):
         self.pumpkin_list = None
 
         self.enemy_list = None
+
+
+    
         
 
         #Player Variable
         self.player_sprite = None
         self.pumpkin_sprite = None
+
 
 
         #Physics Engine
@@ -74,12 +82,17 @@ class MyGame(arcade.Window):
 
         #Score
         self.score = 10
+        self.damage = 0
+
 
 
         #Load Sounds
+        self.damageSound = False
+
+        
         self.soundtrack = arcade.load_sound("sounds/folk-round-by-kevin-macleod-from-filmmusic-io.mp3")
         self.lootSound = arcade.load_sound("sounds/chimes-by-richcraftstudios.wav")
-
+        self.oof = arcade.load_sound("sounds/oof-by-maxmakessounds.wav")
 
 
 
@@ -150,7 +163,7 @@ class MyGame(arcade.Window):
 
 
         #Play Music
-        arcade.play_sound(self.soundtrack)
+        #arcade.play_sound(self.soundtrack)
 
 
         #Enemy Moves +1 
@@ -281,8 +294,27 @@ class MyGame(arcade.Window):
 
 
 
+        #---ENEMY DOES DAMAGE
+        if len(arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)) > 0:
+            self.damage = True
+            if self.damageSound == False:
+                arcade.play_sound(self.oof)
+            self.damageSound = True
+            
+        
+        if self.damage == True and len(arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)) < 1:
+            
+            self.score -=1
+            self.damage = False
+            self.damageSound = False
+
+
+
+
+
+
+        
         #--PUMPKIN COLLISION DETECTION
-     
         self.pumpkin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
                                                                 self.pumpkin_list)
         self.pumpkin_list.update()
