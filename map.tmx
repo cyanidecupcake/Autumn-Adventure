@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="200" height="10" tilewidth="128" tileheight="128" infinite="0" nextlayerid="7" nextobjectid="1">
- <tileset firstgid="1" name="autumn" tilewidth="128" tileheight="128" tilecount="7" columns="0">
+<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="200" height="10" tilewidth="128" tileheight="128" infinite="0" nextlayerid="8" nextobjectid="1">
+ <tileset firstgid="1" name="autumn" tilewidth="128" tileheight="489" tilecount="10" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
    <image width="128" height="128" source="images/grass.png"/>
@@ -17,35 +17,35 @@
   <tile id="4">
    <image width="128" height="128" source="images/pumpkin.png"/>
   </tile>
-  <tile id="5">
-   <image width="128" height="128" source="images/cliff_1.png"/>
-  </tile>
   <tile id="8">
    <image width="128" height="128" source="images/rockTile.png"/>
   </tile>
- </tileset>
- <tileset firstgid="10" name="cliff2" tilewidth="108" tileheight="128" tilecount="1" columns="0">
-  <tileoffset x="20" y="0"/>
-  <grid orientation="orthogonal" width="1" height="1"/>
-  <tile id="0">
-   <image width="108" height="128" source="images/cliff2.png"/>
+  <tile id="9">
+   <image width="128" height="489" source="images/treeWall.png"/>
+  </tile>
+  <tile id="10">
+   <image width="128" height="384" source="images/cliff_3tile.png"/>
+  </tile>
+  <tile id="11">
+   <image width="128" height="384" source="images/cliff_3tiles_upside.png"/>
+  </tile>
+  <tile id="12">
+   <image width="128" height="128" source="images/fire_a.png"/>
   </tile>
  </tileset>
- <tileset firstgid="11" name="cliff3" tilewidth="92" tileheight="128" tilecount="1" columns="0">
-  <tileoffset x="36" y="0"/>
-  <grid orientation="orthogonal" width="1" height="1"/>
-  <tile id="0">
-   <image width="92" height="128" source="images/cliff3.png"/>
-  </tile>
- </tileset>
- <layer id="1" name="Platforms" width="200" height="10">
+ <layer id="1" name="Platforms" width="200" height="10" locked="1">
   <data encoding="base64" compression="zlib">
    eJzt0zEOgCAQBECQyv9/2NbiVCSnGDOTbAdhC7YUAAAAsiyzC8CH2Qd/sx5kRMsqBTt1doEk9sFbapDeO0/1uWIfjIr++1lakN47d97IPGsfjNoAODAAmw==
   </data>
  </layer>
  <layer id="6" name="Walls" width="200" height="10" locked="1">
   <data encoding="base64" compression="zlib">
-   eJzt07EJACAAA0FRsND993UCGwkocjfAkyalAAAAkFJvD4CH+Qc/meFeC/fgphHu+Qc/6eGef8Cef3BqAbCzACw=
+   eJzt07sJACAQREE/mdh/vTagiRycyEwByyavFAAAAKK07APwMH3AWc8+AA/TB7dG9oGNGbynD35Sg/f0wa0FOKsAKA==
+  </data>
+ </layer>
+ <layer id="7" name="Enemy" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJztzDENAAAIA7AZwL9dFOzgJGkFNAEAAAAAAKCZpzcAdwu1XAAb
   </data>
  </layer>
  <layer id="4" name="Loot" width="200" height="10" locked="1">

@@ -23,9 +23,13 @@ TILE_SCALING = .5
 
 
 #Player Movement
-PLAYER_MOVEMENT_SPEED = 5
-GRAVITY = .6
+PLAYER_MOVEMENT_SPEED = 1
+GRAVITY = .5
 PLAYER_JUMP_SPEED = 13
+PUMPKIN_MOVEMENT_SPEED = 1
+
+PLAYER_START_X = 64
+PLAYER_START_Y = 225
 
 #Edge Detection
 LEFT_VIEWPORT_MARGIN = 250
@@ -49,10 +53,16 @@ class MyGame(arcade.Window):
         self.player_list = None
         self.platforms_list = None
         self.loot_list = None
-        self.walls_list = None
+        self.wall_list = None
+
+        self.pumpkin_list = None
+
+        self.enemy_list = None
+        
 
         #Player Variable
         self.player_sprite = None
+        self.pumpkin_sprite = None
 
 
         #Physics Engine
@@ -81,15 +91,18 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.platforms_list = arcade.SpriteList()
         self.loot_list = arcade.SpriteList()
-        self.walls_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList()
+        
+        self.pumpkin_list = arcade.SpriteList()
 
+        self.enemy_list = arcade.SpriteList()
 
         #playerSetup
         image_source = "images/hedgehog_a.png"
 
         self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
-        self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 128
+        self.player_sprite.center_x = PLAYER_START_X
+        self.player_sprite.center_y = PLAYER_START_Y
         self.player_list.append(self.player_sprite)
 
 
@@ -99,26 +112,39 @@ class MyGame(arcade.Window):
         # Name of the layer in the file that has our platforms/platformss
         platforms_layer_name = 'Platforms'
         loot_layer_name = 'Loot'
-        walls_layer_name = 'Walls'
+        wall_layer_name = 'Walls'
+        
+        pumpkin_layer_name = "Pumpkins"
+
+        enemy_layer_name = "Enemy"
 
 
         # Read in the tiled map
         my_map = arcade.tilemap.read_tmx(map_name)
 
-        # -- Load Layers
+        # -- Load Map Layers
         self.platforms_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
         self.loot_list = arcade.tilemap.process_layer(my_map, loot_layer_name, TILE_SCALING)
-        self.walls_list = arcade.tilemap.process_layer(my_map, walls_layer_name, TILE_SCALING)
+        self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
 
+        self.pumpkin_list = arcade.tilemap.process_layer(my_map, pumpkin_layer_name, TILE_SCALING)
 
+        self.enemy_list = arcade.tilemap.process_layer(my_map, enemy_layer_name, TILE_SCALING)
 
 
         #Create Physics Engine
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
                                                              self.platforms_list,
                                                              GRAVITY)
+        
+        #self.pumpkin_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
+                                                               #self.pumpkin_list,
+                                                               #GRAVITY)
 
-
+        self.wall_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
+                                                          self.wall_list,
+                                                          GRAVITY)
+        
         #Score
         self.score = 10
 
@@ -126,6 +152,10 @@ class MyGame(arcade.Window):
         #Play Music
         arcade.play_sound(self.soundtrack)
 
+
+        #Enemy Moves +1 
+        for enemy in self.enemy_list:
+            enemy.change_x = 1
 
 
     def on_draw(self):
@@ -140,7 +170,11 @@ class MyGame(arcade.Window):
         self.player_list.draw()
         self.platforms_list.draw()
         self.loot_list.draw()
-        self.walls_list.draw()
+        self.wall_list.draw()
+        
+        self.pumpkin_list.draw()
+
+        self.enemy_list.draw()
 
 
         #Draw score
@@ -158,7 +192,9 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        self.physics_engine.update()
+        self.physics_engine.update() #solid object + jump
+        #self.pumpkin_engine.update() #solid object + jump (on pumpkins)
+        self.wall_engine.update() #solid object
 
 
         #---SCROLLING---
@@ -199,7 +235,17 @@ class MyGame(arcade.Window):
                                 SCREEN_HEIGHT + self.view_bottom)
 
 
+        #---FALL OFF WORLD ---
+        if self.player_sprite.center_y < -100:
+            self.player_sprite.center_x = PLAYER_START_X
+            self.player_sprite.center_y = PLAYER_START_Y
 
+            self.view_left = 0
+            self.view_bottom = 0
+            changed_viewport = True
+            
+
+            
         #---LOOT COLLISION DETECTION---
         loot_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
                                                              self.loot_list)
@@ -211,15 +257,44 @@ class MyGame(arcade.Window):
             self.score += 1
 
 
-        #---WALLS COLLISION DETECTION---
-        walls_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
-                                                              self.walls_list)
-        for wall in walls_hit_list:
-            self.player_sprite.change_x = -1
+        #--ENEMY BOUNCE ON WALLS + PLATFORMS--
+        for enemy in self.enemy_list:
+            enemy.center_x += enemy.change_x
+            walls_hit = arcade.check_for_collision_with_list(enemy, self.wall_list)
+            platforms_hit = arcade.check_for_collision_with_list(enemy,self.platforms_list)
+            for walls in walls_hit:
+                if enemy.change_x > 0:
+                    enemy.right = walls.left
+                elif enemy.change_x < 0:
+                    enemy.left = walls.right       
+            if len(walls_hit) > 0:
+                enemy.change_x *=-1
+
+            for platforms in platforms_hit:
+                if enemy.change_x > 0:
+                    enemy.right = platforms.left
+                elif enemy.change_x < 0:
+                    enemy.left = platforms.right       
+            if len(platforms_hit) > 0:
+                enemy.change_x *=-1
 
 
 
-    def on_key_press(self, key, key_modifiers):
+
+        #--PUMPKIN COLLISION DETECTION
+     
+        self.pumpkin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
+                                                                self.pumpkin_list)
+        self.pumpkin_list.update()
+        
+                
+
+
+
+
+
+
+    def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.RIGHT:
@@ -227,8 +302,20 @@ class MyGame(arcade.Window):
         elif key == arcade.key.UP:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            #if self.pumpkin_engine.can_jump():
+                #self.player_sprite.change_y = PLAYER_JUMP_SPEED #jump on pumpkins
         elif key == arcade.key.Q:
-                exit()
+            exit()
+
+
+        #if key == arcade.key.D:
+            #for pumpkin in self.pumpkin_hit_list:
+                #pumpkin.change_x = PUMPKIN_MOVEMENT_SPEED                       
+
+        #if key == arcade.key.A:
+               # print("PUMPKIN BACK")
+
+       
 
 
 
@@ -239,6 +326,8 @@ class MyGame(arcade.Window):
         """
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
+
+
 
 
 
