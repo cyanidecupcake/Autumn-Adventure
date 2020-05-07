@@ -50,10 +50,11 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         # Call the parent class and set up the window
         super().__init__(width, height, title)
-        arcade.set_background_color(arcade.color.LIGHT_BLUE)
+        arcade.set_background_color(arcade.color.SLATE_BLUE) #LIGHT_BLUE
 
         # Sprite Lists
-
+        self.background_list = None
+        
         self.player_list = None
         self.platforms_list = None
         self.loot_list = None
@@ -101,6 +102,8 @@ class MyGame(arcade.Window):
 
     def setup(self):
         # Create your sprites and sprite lists here
+        self.background_list = arcade.SpriteList()
+
         self.player_list = arcade.SpriteList()
         self.platforms_list = arcade.SpriteList()
         self.loot_list = arcade.SpriteList()
@@ -123,9 +126,11 @@ class MyGame(arcade.Window):
         # Name of map file to load
         map_name = "map.tmx"
         # Name of the layer in the file that has our platforms/platformss
+        background_layer_name = 'Background'
         platforms_layer_name = 'Platforms'
         loot_layer_name = 'Loot'
         wall_layer_name = 'Walls'
+        
         
         pumpkin_layer_name = "Pumpkins"
 
@@ -136,6 +141,7 @@ class MyGame(arcade.Window):
         my_map = arcade.tilemap.read_tmx(map_name)
 
         # -- Load Map Layers
+        self.background_list = arcade.tilemap.process_layer(my_map, background_layer_name, TILE_SCALING)
         self.platforms_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
         self.loot_list = arcade.tilemap.process_layer(my_map, loot_layer_name, TILE_SCALING)
         self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
@@ -180,6 +186,8 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Call draw() on all your sprite lists
+        self.background_list.draw()
+        
         self.player_list.draw()
         self.platforms_list.draw()
         self.loot_list.draw()
