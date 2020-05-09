@@ -27,10 +27,9 @@ TILE_SCALING = .5
 
 
 #Player Movement
-PLAYER_MOVEMENT_SPEED = 1
+PLAYER_MOVEMENT_SPEED = 1.5
 GRAVITY = .5
 PLAYER_JUMP_SPEED = 13
-PUMPKIN_MOVEMENT_SPEED = 1
 
 PLAYER_START_X = 64
 PLAYER_START_Y = 225
@@ -41,6 +40,9 @@ RIGHT_VIEWPORT_MARGIN = 250
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 100
 
+# Constants used to track if the player is facing left or right
+RIGHT_FACING = 0
+LEFT_FACING = 1
 
 
 class MyGame(arcade.Window):
@@ -61,12 +63,9 @@ class MyGame(arcade.Window):
         self.wall_list = None
 
         self.pumpkin_list = None
-
+        
         self.enemy_list = None
 
-
-    
-        
 
         #Player Variable
         self.player_sprite = None
@@ -175,6 +174,7 @@ class MyGame(arcade.Window):
         #Enemy Moves +1 
         for enemy in self.enemy_list:
             enemy.change_x = 1
+
 
 
     def on_draw(self):
@@ -301,6 +301,32 @@ class MyGame(arcade.Window):
 
 
 
+        #--PUMPKIN BOUNCE ON WALLS + PLATFORMS--
+        for pumpkin in self.pumpkin_list:
+            pumpkin.center_x += pumpkin.change_x
+            walls_hit = arcade.check_for_collision_with_list(pumpkin, self.wall_list)
+            platforms_hit = arcade.check_for_collision_with_list(pumpkin,self.platforms_list)
+            for walls in walls_hit:
+                if pumpkin.change_x > 0:
+                    #pumpkin.right = walls.left
+                    pumpkin.change_x = 0
+                elif pumpkin.change_x < 0:
+                    #pumpkin.left = walls.right
+                    pumpkin.change_x = 0
+            if len(walls_hit) > 0:
+                pumpkin.change_x *=-1
+
+            for platforms in platforms_hit:
+                if pumpkin.change_x > 0:
+                    #pumpkin.right = platforms.left
+                    pumpkin.change_x = 0
+                elif pumpkin.change_x < 0:
+                    #pumpkin.left = platforms.right
+                    pumpkin.change_x = 0
+            if len(platforms_hit) > 0:
+                pumpkin.change_x *=-1
+
+
 
         #---ENEMY DOES DAMAGE
         if len(arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)) > 0:
@@ -321,19 +347,6 @@ class MyGame(arcade.Window):
 
 
 
-        
-        #--PUMPKIN COLLISION DETECTION
-        self.pumpkin_hit_list = arcade.check_for_collision_with_list(self.player_sprite,
-                                                                self.pumpkin_list)
-        self.pumpkin_list.update()
-        
-                
-
-
-
-
-
-
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
@@ -342,19 +355,23 @@ class MyGame(arcade.Window):
         elif key == arcade.key.UP:
             if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                self.player_sprite.change_x = 3
             #if self.pumpkin_engine.can_jump():
                 #self.player_sprite.change_y = PLAYER_JUMP_SPEED #jump on pumpkins
         elif key == arcade.key.Q:
             exit()
 
 
-        #if key == arcade.key.D:
-            #for pumpkin in self.pumpkin_hit_list:
-                #pumpkin.change_x = PUMPKIN_MOVEMENT_SPEED                       
-
-        #if key == arcade.key.A:
-               # print("PUMPKIN BACK")
-
+        #PUMPKIN SLIDE            
+        if key == arcade.key.D:
+            if len(arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)) > 0:
+                for pumpkin in self.pumpkin_list:
+                    pumpkin.change_x = 4
+                        
+        if key == arcade.key.A:
+            if len(arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)) > 0:
+                for pumpkin in self.pumpkin_list:
+                    pumpkin.change_x = -4
        
 
 
@@ -367,7 +384,13 @@ class MyGame(arcade.Window):
         if key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
 
+        if key == arcade.key.UP:
+            self.player_sprite.change_x = 0
 
+        #PUMPKIN SLIDE STOP
+        if key == arcade.key.D or key == arcade.key.A:
+            for pumpkin in self.pumpkin_list:
+                pumpkin.change_x = 0   
 
 
 
