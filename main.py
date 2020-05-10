@@ -22,14 +22,19 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 650
 SCREEN_TITLE = "Plague Pumpkins"
 
+
 CHARACTER_SCALING = .5
 TILE_SCALING = .5
 
 
 #Player Movement
-PLAYER_MOVEMENT_SPEED = 1.2
-GRAVITY = .5
-PLAYER_JUMP_SPEED = 13
+PLAYER_MOVEMENT_SPEED = 4 #7 #1.2
+GRAVITY = 1 #1.5 #.5
+PLAYER_JUMP_SPEED = 17 #30 #13
+
+'''You can change how the user jumps by changing the gravity and
+jump constants. Lower values for both will make for a more
+“floaty” character. Higher values make for a faster-paced game.'''
 
 PLAYER_START_X = 64
 PLAYER_START_Y = 225
@@ -130,6 +135,12 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title)
         arcade.set_background_color(arcade.color.SLATE_BLUE) #LIGHT_BLUE
 
+        #Track current state of pressed keys
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.jump_needs_reset = False
+
         # Sprite Lists
         self.background_list = None
         
@@ -176,6 +187,8 @@ class MyGame(arcade.Window):
 
 
     def setup(self):
+        
+
         # Create your sprites and sprite lists here
         self.background_list = arcade.SpriteList()
 
@@ -217,9 +230,15 @@ class MyGame(arcade.Window):
 
         # -- Load Map Layers
         self.background_list = arcade.tilemap.process_layer(my_map, background_layer_name, TILE_SCALING)
+
+        #Solid Layers 
         self.platforms_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
+        wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
+        for sprite in wall_list:
+            self.platforms_list.append(sprite)
+        #self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
+
         self.loot_list = arcade.tilemap.process_layer(my_map, loot_layer_name, TILE_SCALING)
-        self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
 
         self.pumpkin_list = arcade.tilemap.process_layer(my_map, pumpkin_layer_name, TILE_SCALING)
 
@@ -229,15 +248,15 @@ class MyGame(arcade.Window):
         #Create Physics Engine
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
                                                              self.platforms_list,
-                                                             GRAVITY)
+                                                             #GRAVITY)
+                                                             gravity_constant = GRAVITY)
         
         #self.pumpkin_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
                                                                #self.pumpkin_list,
                                                                #GRAVITY)
 
-        self.wall_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                          self.wall_list,
-                                                          GRAVITY)
+    
+                                                          #GRAVITY)
         
         #Score
         self.score = 10
@@ -291,11 +310,9 @@ class MyGame(arcade.Window):
         """
         self.physics_engine.update() #solid object + jump
         #self.pumpkin_engine.update() #solid object + jump (on pumpkins)
-        self.wall_engine.update() #solid object
 
 
         #Update animations
-
         if self.physics_engine.can_jump():
             self.player_sprite.can_jump = False
         else:
@@ -449,19 +466,40 @@ class MyGame(arcade.Window):
             self.damageSound = False
 
 
+    def process_keychange(self):
+        #Process up/down
+        if self.up_pressed:
+                if self.physics_engine.can_jump() and not self.jump_needs_reset:
+                    self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+                    self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                    self.jump_needs_reset = True
+                    
 
+        #Process left/right
+        if self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+        elif self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        else:
+            self.player_sprite.change_x = 0
+
+        
 
 
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.left_pressed = True
+            
         elif key == arcade.key.RIGHT:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+            self.right_pressed = True
         elif key == arcade.key.UP:
-            if self.physics_engine.can_jump():
+            self.up_pressed = True
+
+            
+            """if self.physics_engine.can_jump():
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                self.player_sprite.change_x = 3
+                self.player_sprite.change_x = 3"""
             #if self.pumpkin_engine.can_jump():
                 #self.player_sprite.change_y = PLAYER_JUMP_SPEED #jump on pumpkins
         elif key == arcade.key.Q:
@@ -478,6 +516,8 @@ class MyGame(arcade.Window):
             if len(arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)) > 0:
                 for pumpkin in self.pumpkin_list:
                     pumpkin.change_x = -4
+
+        self.process_keychange()
        
 
 
@@ -487,16 +527,22 @@ class MyGame(arcade.Window):
         """
         Called whenever the user lets off a previously pressed key.
         """
-        if key == arcade.key.LEFT or key == arcade.key.RIGHT:
-            self.player_sprite.change_x = 0
+        if key == arcade.key.LEFT:
+            self.left_pressed = False
+
+        if key == arcade.key.RIGHT:
+            self.right_pressed = False
 
         if key == arcade.key.UP:
-            self.player_sprite.change_x = 0
+           self.up_pressed = False
+           self.jump_needs_reset = False
 
         #PUMPKIN SLIDE STOP
         if key == arcade.key.D or key == arcade.key.A:
             for pumpkin in self.pumpkin_list:
-                pumpkin.change_x = 0   
+                pumpkin.change_x = 0
+
+        self.process_keychange()
 
 
 
