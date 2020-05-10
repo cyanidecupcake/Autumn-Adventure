@@ -150,7 +150,7 @@ class MyGame(arcade.Window):
         self.wall_list = None
 
         self.pumpkin_list = None
-        
+
         self.enemy_list = None
 
 
@@ -162,7 +162,7 @@ class MyGame(arcade.Window):
 
         #Physics Engine
         self.physics_engine = None
-
+        self.pumpkin_on = False
         #Scrolling Tracker
         self.view_bottom = 0
         self.view_left = 0
@@ -236,9 +236,18 @@ class MyGame(arcade.Window):
         wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
         for sprite in wall_list:
             self.platforms_list.append(sprite)
-        #self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
 
         self.loot_list = arcade.tilemap.process_layer(my_map, loot_layer_name, TILE_SCALING)
+
+        #pumpkin as a solid, jump object
+        #pumpkin_list = arcade.tilemap.process_layer(my_map, pumpkin_layer_name, TILE_SCALING)
+        #for sprite in pumpkin_list:
+           # self.platforms_list.append(sprite)
+
+        #self.pumpkin_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
+                                                               #self.pumpkin_list,
+                                                               #GRAVITY)
+
 
         self.pumpkin_list = arcade.tilemap.process_layer(my_map, pumpkin_layer_name, TILE_SCALING)
 
@@ -251,12 +260,8 @@ class MyGame(arcade.Window):
                                                              #GRAVITY)
                                                              gravity_constant = GRAVITY)
         
-        #self.pumpkin_engine = arcade.PhysicsEnginePlatformer(self.player_sprite,
-                                                               #self.pumpkin_list,
-                                                               #GRAVITY)
+           
 
-    
-                                                          #GRAVITY)
         
         #Score
         self.score = 10
@@ -309,6 +314,11 @@ class MyGame(arcade.Window):
         need it.
         """
         self.physics_engine.update() #solid object + jump
+
+        #WIP -- PUMPKIN GRAVITY
+        """for pumpkin in self.pumpkin_list:
+            pumpkin.change_y = 0.5"""
+
         #self.pumpkin_engine.update() #solid object + jump (on pumpkins)
 
 
@@ -430,23 +440,19 @@ class MyGame(arcade.Window):
                 pumpkin.change_x *=-1
 
 
-        #--PUMPKIN AS SOLID?--
-        #Technically works, but can glitch out
-        """for player in self.player_list:
-            player.center_x += player.change_x
+        #--PUMPKIN AS SOLID--
+        for player in self.player_list:
             pumpkin_hit = arcade.check_for_collision_with_list(player, self.pumpkin_list)
             for pumpkin in pumpkin_hit:
-                if player.change_x > 0:
-                    #pumpkin.right = walls.left
-                    player.change_x = 0
-                elif player.change_x < 0:
-                    #pumpkin.left = walls.right
-                    player.change_x = 0
-            if len(walls_hit) > 0:
-                player.change_x *=-1"""
-
-
-
+                if player.bottom <= pumpkin.top and player.center_x > pumpkin.left and player.center_x < pumpkin.right: # falling
+                    player.bottom = pumpkin.top
+                    self.pumpkin_on = True
+                elif player.change_x > 0 and player.right > pumpkin.left: # moving right
+                    player.right = pumpkin.left+2
+                    self.pumpkin_on = False
+                elif player.change_x < 0 and player.left < pumpkin.right:  #moving left
+                    player.left = pumpkin.right-2
+                    self.pumpkin_on = False
             
 
 
@@ -493,21 +499,19 @@ class MyGame(arcade.Window):
             
         elif key == arcade.key.RIGHT:
             self.right_pressed = True
+            
         elif key == arcade.key.UP:
             self.up_pressed = True
 
-            
-            """if self.physics_engine.can_jump():
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                self.player_sprite.change_x = 3"""
-            #if self.pumpkin_engine.can_jump():
-                #self.player_sprite.change_y = PLAYER_JUMP_SPEED #jump on pumpkins
+            if self.pumpkin_on is True:
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED #jump on pumpkins
+                
         elif key == arcade.key.Q:
             exit()
 
 
         #PUMPKIN SLIDE            
-        if key == arcade.key.D:
+        '''if key == arcade.key.D:
             if len(arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)) > 0:
                 for pumpkin in self.pumpkin_list:
                     pumpkin.change_x = 4
@@ -515,7 +519,18 @@ class MyGame(arcade.Window):
         if key == arcade.key.A:
             if len(arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)) > 0:
                 for pumpkin in self.pumpkin_list:
-                    pumpkin.change_x = -4
+                    pumpkin.change_x = -4'''
+
+        if key == arcade.key.D:
+            pumpkin_hit = arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)
+            for pumpkin in pumpkin_hit:
+                pumpkin.change_x = 4
+
+        
+        if key == arcade.key.A:
+            pumpkin_hit = arcade.check_for_collision_with_list(self.player_sprite, self.pumpkin_list)
+            for pumpkin in pumpkin_hit:
+                pumpkin.change_x = -4
 
         self.process_keychange()
        
@@ -538,6 +553,10 @@ class MyGame(arcade.Window):
            self.jump_needs_reset = False
 
         #PUMPKIN SLIDE STOP
+        '''if key == arcade.key.D or key == arcade.key.A:
+            for pumpkin in self.pumpkin_list:
+                pumpkin.change_x = 0'''
+
         if key == arcade.key.D or key == arcade.key.A:
             for pumpkin in self.pumpkin_list:
                 pumpkin.change_x = 0
