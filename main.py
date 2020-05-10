@@ -27,7 +27,7 @@ TILE_SCALING = .5
 
 
 #Player Movement
-PLAYER_MOVEMENT_SPEED = 1.5
+PLAYER_MOVEMENT_SPEED = 1.2
 GRAVITY = .5
 PLAYER_JUMP_SPEED = 13
 
@@ -43,6 +43,82 @@ TOP_VIEWPORT_MARGIN = 100
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
+
+
+def load_texture_pair(filename):
+    return [
+        arcade.load_texture(filename),
+        arcade.load_texture(filename, flipped_horizontally=True)
+    ]
+
+
+class PlayerCharacter(arcade.Sprite):
+    def __init__(self):
+
+        #setup parent class
+        super().__init__()
+
+        #default face-right
+        self.character_face_direction = RIGHT_FACING
+
+        #Used for flipping between image sequences
+        self.cur_texture = 0
+        self.scale = CHARACTER_SCALING
+
+
+        #Track out state
+        self.jumping = False
+
+
+
+
+        # --- Load Textures ---
+
+        main_path = "images/hedgehog/hedgehog"     
+
+
+        # Load textures for idle standing
+        self.idle_texture_pair = load_texture_pair(f"{main_path}_idle.png")
+        
+        # Load textures for walking
+        self.walk_textures = []
+        for i in range(8):
+            texture = load_texture_pair(f"{main_path}_walk{i}.png")
+            self.walk_textures.append(texture)
+
+        # Set the initial texture
+        self.texture = self.idle_texture_pair[0]
+
+        # Hit box will be set based on the first image used. If you want to specify
+        # a different hit box, you can do it like the code below.
+        # self.set_hit_box([[-22, -64], [22, -64], [22, 28], [-22, 28]])
+        self.set_hit_box(self.texture.hit_box_points)
+
+
+    def update_animation(self, delta_time: float = 1/60):
+        
+        # Figure out if we need to flip face left or right
+        if self.change_x < 0 and self.character_face_direction == RIGHT_FACING:
+            self.character_face_direction = LEFT_FACING
+        elif self.change_x > 0 and self.character_face_direction == LEFT_FACING:
+            self.character_face_direction = RIGHT_FACING
+
+
+        # Idle animation
+        if self.change_x == 0:
+            self.texture = self.idle_texture_pair[self.character_face_direction]
+            return
+
+        # Walking animation
+        self.cur_texture += 1
+        if self.cur_texture > 7: #was originally 2
+            self.cur_texture = 0
+        self.texture = self.walk_textures[self.cur_texture][self.character_face_direction]
+
+
+
+
+
 
 
 class MyGame(arcade.Window):
@@ -113,9 +189,9 @@ class MyGame(arcade.Window):
         self.enemy_list = arcade.SpriteList()
 
         #playerSetup
-        image_source = "images/hedgehog_a.png"
+        self.player_sprite = PlayerCharacter() 
 
-        self.player_sprite = arcade.Sprite(image_source, CHARACTER_SCALING)
+        
         self.player_sprite.center_x = PLAYER_START_X
         self.player_sprite.center_y = PLAYER_START_Y
         self.player_list.append(self.player_sprite)
@@ -168,7 +244,7 @@ class MyGame(arcade.Window):
 
 
         #Play Music
-        #arcade.play_sound(self.soundtrack)
+        arcade.play_sound(self.soundtrack)
 
 
         #Enemy Moves +1 
@@ -216,6 +292,16 @@ class MyGame(arcade.Window):
         self.physics_engine.update() #solid object + jump
         #self.pumpkin_engine.update() #solid object + jump (on pumpkins)
         self.wall_engine.update() #solid object
+
+
+        #Update animations
+
+        if self.physics_engine.can_jump():
+            self.player_sprite.can_jump = False
+        else:
+            self.player_sprite.can_jump = True
+
+        self.player_list.update_animation(delta_time)
 
 
         #---SCROLLING---
@@ -325,6 +411,26 @@ class MyGame(arcade.Window):
                     pumpkin.change_x = 0
             if len(platforms_hit) > 0:
                 pumpkin.change_x *=-1
+
+
+        #--PUMPKIN AS SOLID?--
+        #Technically works, but can glitch out
+        """for player in self.player_list:
+            player.center_x += player.change_x
+            pumpkin_hit = arcade.check_for_collision_with_list(player, self.pumpkin_list)
+            for pumpkin in pumpkin_hit:
+                if player.change_x > 0:
+                    #pumpkin.right = walls.left
+                    player.change_x = 0
+                elif player.change_x < 0:
+                    #pumpkin.left = walls.right
+                    player.change_x = 0
+            if len(walls_hit) > 0:
+                player.change_x *=-1"""
+
+
+
+            
 
 
 
