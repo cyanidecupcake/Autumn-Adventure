@@ -234,8 +234,8 @@ class MyGame(arcade.Window):
 
         #Solid Layers 
         self.platforms_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
-        wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
-        for sprite in wall_list:
+        self.wall_list = arcade.tilemap.process_layer(my_map, wall_layer_name, TILE_SCALING)
+        for sprite in self.wall_list:
             self.platforms_list.append(sprite)
 
         self.loot_list = arcade.tilemap.process_layer(my_map, loot_layer_name, TILE_SCALING)
@@ -381,22 +381,23 @@ class MyGame(arcade.Window):
         #--ENEMY BOUNCE ON WALLS + PLATFORMS--
         for enemy in self.enemy_list:
             enemy.center_x += enemy.change_x
-            walls_hit = arcade.check_for_collision_with_list(enemy, self.wall_list)
             platforms_hit = arcade.check_for_collision_with_list(enemy,self.platforms_list)
-            for walls in walls_hit:
-                if enemy.change_x > 0:
-                    enemy.right = walls.left
-                elif enemy.change_x < 0:
-                    enemy.left = walls.right       
-            if len(walls_hit) > 0:
-                enemy.change_x *=-1
+            pumpkin_hit = arcade.check_for_collision_with_list(enemy, self.pumpkin_list)
 
-            for platforms in platforms_hit:
+            for platforms in platforms_hit: #includes walls
                 if enemy.change_x > 0:
                     enemy.right = platforms.left
                 elif enemy.change_x < 0:
                     enemy.left = platforms.right       
-            if len(platforms_hit) > 0:
+            if len(platforms_hit) > 0: #bounce on collision
+                enemy.change_x *=-1
+
+            for pumpkin in pumpkin_hit:
+                if enemy.change_x > 0:
+                    enemy.right = pumpkin.left
+                elif enemy.change_x < 0:
+                    enemy.left = pumpkin.right       
+            if len(pumpkin_hit) > 0: #bounce on collision
                 enemy.change_x *=-1
 
 
@@ -406,13 +407,14 @@ class MyGame(arcade.Window):
             pumpkin.center_x += pumpkin.change_x
             walls_hit = arcade.check_for_collision_with_list(pumpkin, self.wall_list)
             platforms_hit = arcade.check_for_collision_with_list(pumpkin,self.platforms_list)
-            for walls in walls_hit:
+            for walls in walls_hit: #including platforms results in a huge lag in pushing pumpkins
                 if pumpkin.change_x > 0:
                     pumpkin.change_x = 0
                 elif pumpkin.change_x < 0:
                     pumpkin.change_x = 0
             if len(walls_hit) > 0: #bounce on collision
                 pumpkin.change_x *=-1
+
 
             #PUMPKIN GRAVITY
             if len(arcade.check_for_collision_with_list(pumpkin, self.platforms_list)) <= 0: #if platform + pumpkin aren't touching
