@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.4" orientation="orthogonal" renderorder="right-down" width="200" height="10" tilewidth="128" tileheight="128" infinite="0" nextlayerid="11" nextobjectid="1">
+ <tileset firstgid="1" name="autumn" tilewidth="130" tileheight="489" tilecount="13" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="128" height="128" source="images/grass.png"/>
+  </tile>
+  <tile id="1">
+   <image width="128" height="128" source="images/brown.png"/>
+  </tile>
+  <tile id="2">
+   <image width="128" height="128" source="images/green.png"/>
+  </tile>
+  <tile id="3">
+   <image width="128" height="128" source="images/loot_leaf.png"/>
+  </tile>
+  <tile id="4">
+   <image width="128" height="128" source="images/pumpkin.png"/>
+  </tile>
+  <tile id="8">
+   <image width="128" height="128" source="images/rockTile.png"/>
+  </tile>
+  <tile id="9">
+   <image width="128" height="489" source="images/treeWall.png"/>
+  </tile>
+  <tile id="10">
+   <image width="128" height="384" source="images/cliff_3tile.png"/>
+  </tile>
+  <tile id="11">
+   <image width="128" height="384" source="images/cliff_3tiles_upside.png"/>
+  </tile>
+  <tile id="12">
+   <image width="128" height="128" source="images/fire_a.png"/>
+  </tile>
+  <tile id="13">
+   <image width="130" height="128" source="images/insiderock.png"/>
+  </tile>
+  <tile id="14">
+   <image width="128" height="367" source="images/portal_top.png"/>
+  </tile>
+  <tile id="15">
+   <image width="128" height="128" source="images/portal_bottom.png"/>
+  </tile>
+ </tileset>
+ <tileset firstgid="17" name="backgrounds" tilewidth="1024" tileheight="504" tilecount="4" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="2">
+   <image width="1024" height="489" source="images/backtrees.png"/>
+  </tile>
+  <tile id="3">
+   <image width="1024" height="95" source="images/backtreesTop.png"/>
+  </tile>
+  <tile id="5">
+   <image width="756" height="504" source="images/backtreesLeft6.png"/>
+  </tile>
+  <tile id="6">
+   <image width="504" height="504" source="images/backtreesRight4.png"/>
+  </tile>
+ </tileset>
+ <layer id="9" name="Background" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJztwQEBAAAAgJD+r+4ICgAAAAAAAAAYH0AAAQ==
+  </data>
+ </layer>
+ <layer id="10" name="Portal" width="200" height="10" locked="1">
+  <data encoding="base64" compression="zlib">
+   eJztzgENAAAIA6BHsH9aY3w6SEACAAAAAADAJdMOADy1dUAAEQ==
+  </data>
+ </layer>
+ <layer id="1" name="Platforms" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJzt0kEKACAIBMCi//+5D0hUJFHMwN5c9GApAAAAAAD8pt4+AB5Tg8x2su6BLNG/j9KCzHZWdpychV0dIu8AVQ==
+  </data>
+ </layer>
+ <layer id="6" name="Walls" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJzt08ENACAIADGcAEd2dD+uYAikneA+FwEAAAAAQEcZcaobfsrqAFrbw/+AaVZ1ADwXX3MBMA==
+  </data>
+ </layer>
+ <layer id="7" name="Enemy" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJztwQEBAAAAgJD+r+4ICgAAAAAAAAAYH0AAAQ==
+  </data>
+ </layer>
+ <layer id="4" name="Loot" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJztzjENAAAIA7Ad+NeMjAXSKmgCAAAAADdNOwAAALyyUNAABQ==
+  </data>
+ </layer>
+ <layer id="5" name="Pumpkins" width="200" height="10">
+  <data encoding="base64" compression="zlib">
+   eJztwQEBAAAAgJD+r+4ICgAAAAAAAAAYH0AAAQ==
+  </data>
+ </layer>
+</map>
