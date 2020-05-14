@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Plague Pumpkins
@@ -38,7 +37,7 @@ PLAYER_JUMP_SPEED = 17 #30 #13
 jump constants. Lower values for both will make for a more
 "floaty" character. Higher values make for a faster-paced game.'''
 
-PLAYER_START_X = 85
+PLAYER_START_X = 130
 PLAYER_START_Y = 225
 
 #Edge Detection
@@ -463,13 +462,12 @@ class MyGame(arcade.Window):
                 if player.bottom <= pumpkin.top and player.center_x > pumpkin.left and player.center_x < pumpkin.right: # falling
                     player.bottom = pumpkin.top
                     self.pumpkin_on = True
-                elif player.change_x > 0 and player.right > pumpkin.left: # moving right
+                elif player.change_x > 0 and player.right > pumpkin.left and player.right < pumpkin.center_x: # moving right
                     player.right = pumpkin.left+2
                     self.pumpkin_on = False
-                elif player.change_x < 0 and player.left < pumpkin.right:  #moving left
+                elif player.change_x < 0 and player.left < pumpkin.right and player.left > pumpkin.center_x:  #moving left
                     player.left = pumpkin.right-2
                     self.pumpkin_on = False
-
 
 
 
